@@ -1,0 +1,186 @@
+﻿@model homeWork_54.Models.TaskListViewModel
+
+@{
+    ViewData["Title"] = Localizer["TasksListTitle"];
+}
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-secondary mb-4 px-3">
+    <div class="navbar-nav">
+        <a class="nav-link active fw-bold" asp-action="Index">@Localizer["AllTasks"]</a>
+        <a class="nav-link text-white" asp-action="Create">@Localizer["CreateTask"]</a>
+    </div>
+</nav>
+
+<h3>@Localizer["TasksListTitle"]</h3>
+
+<div class="card mb-4 bg-light">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3">
+            <input type="hidden" name="sortOrder" value="@Model.CurrentSort" />
+
+            <div class="col-md-3">
+                <label class="form-label">@Localizer["SearchTitleLabel"]</label>
+                <input type="text" name="searchTitle" value="@Model.SearchTitle" class="form-control" placeholder="@Localizer["SearchTitlePlaceholder"]" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">@Localizer["SearchDescLabel"]</label>
+                <input type="text" name="searchDescription" value="@Model.SearchDescription" class="form-control" placeholder="@Localizer["SearchDescPlaceholder"]" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">@Localizer["DateFromLabel"]</label>
+                <input type="date" name="dateFrom" value="@(Model.DateFrom?.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">@Localizer["DateToLabel"]</label>
+                <input type="date" name="dateTo" value="@(Model.DateTo?.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">@Localizer["FilterPriorityLabel"]</label>
+                <select name="filterPriority" class="form-select" asp-for="FilterPriority" asp-items="Html.GetEnumSelectList<homeWork_54.Models.TaskPriority>()">
+                    <option value="">@Localizer["AllOption"]</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">@Localizer["FilterStatusLabel"]</label>
+                <select name="filterStatus" class="form-select" asp-for="FilterStatus" asp-items="Html.GetEnumSelectList<homeWork_54.Models.TodoStatus>()">
+                    <option value="">@Localizer["AllOption"]</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary">@Localizer["ApplyFilterButton"]</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">@Localizer["ResetButton"]</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<table class="table table-bordered text-center align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>@Localizer["NumberLabel"]</th>
+            <th>
+                <a asp-action="Index" 
+                   asp-route-sortOrder="@(Model.CurrentSort == "title_asc" ? "title_desc" : "title_asc")"
+                   asp-route-searchTitle="@Model.SearchTitle" asp-route-searchDescription="@Model.SearchDescription"
+                   asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")" asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+                   asp-route-filterPriority="@Model.FilterPriority" asp-route-filterStatus="@Model.FilterStatus">
+                    @Localizer["ColumnTitle"]
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" 
+                   asp-route-sortOrder="@(Model.CurrentSort == "priority_asc" ? "priority_desc" : "priority_asc")"
+                   asp-route-searchTitle="@Model.SearchTitle" asp-route-searchDescription="@Model.SearchDescription"
+                   asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")" asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+                   asp-route-filterPriority="@Model.FilterPriority" asp-route-filterStatus="@Model.FilterStatus">
+                    @Localizer["ColumnPriority"]
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" 
+                   asp-route-sortOrder="@(Model.CurrentSort == "status_asc" ? "status_desc" : "status_asc")"
+                   asp-route-searchTitle="@Model.SearchTitle" asp-route-searchDescription="@Model.SearchDescription"
+                   asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")" asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+                   asp-route-filterPriority="@Model.FilterPriority" asp-route-filterStatus="@Model.FilterStatus">
+                    @Localizer["ColumnStatus"]
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" 
+                   asp-route-sortOrder="@(Model.CurrentSort == "date_asc" ? "date_desc" : "date_asc")"
+                   asp-route-searchTitle="@Model.SearchTitle" asp-route-searchDescription="@Model.SearchDescription"
+                   asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")" asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+                   asp-route-filterPriority="@Model.FilterPriority" asp-route-filterStatus="@Model.FilterStatus">
+                    @Localizer["ColumnCreatedDate"]
+                </a>
+            </th>
+            <th>@Localizer["ColumnActions"]</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in Model.Tasks)
+        {
+            <tr>
+                <td>@task.Id</td>
+                <td>@task.Title</td>
+                <td>
+                    @if (task.Priority == homeWork_54.Models.TaskPriority.High)
+                    {
+                        <span class="text-danger fw-bold">@Localizer["PriorityHigh"]</span>
+                    }
+                    else if (task.Priority == homeWork_54.Models.TaskPriority.Medium)
+                    {
+                        <span class="text-primary fw-bold">@Localizer["PriorityMedium"]</span>
+                    }
+                    else
+                    {
+                        <span class="text-success fw-bold">@Localizer["PriorityLow"]</span>
+                    }
+                </td>
+                <td>
+                    @(task.Status == homeWork_54.Models.TodoStatus.New ? Localizer["StatusNew"] :
+                      task.Status == homeWork_54.Models.TodoStatus.Opened ? Localizer["StatusOpened"] : Localizer["StatusClosed"])
+                </td>
+                <td>@task.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>
+                    <div class="d-flex justify-content-center gap-1">
+                        @if (task.Status == homeWork_54.Models.TodoStatus.New)
+                        {
+                            <form asp-action="Open" asp-route-id="@task.Id" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">@Localizer["OpenAction"]</button>
+                            </form>
+                        }
+                        else if (task.Status == homeWork_54.Models.TodoStatus.Opened)
+                        {
+                            <form asp-action="Close" asp-route-id="@task.Id" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">@Localizer["CloseAction"]</button>
+                            </form>
+                        }
+
+                        <a asp-action="Details" asp-route-id="@task.Id" class="btn btn-sm btn-outline-secondary">@Localizer["DetailsAction"]</a>
+                        
+                        @if (task.Status != homeWork_54.Models.TodoStatus.Opened)
+                        {
+                            <form asp-action="Delete" asp-route-id="@task.Id" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">@Localizer["DeleteAction"]</button>
+                            </form>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<nav>
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" 
+               asp-route-page="@(Model.PageNumber - 1)"
+               asp-route-sortOrder="@Model.CurrentSort"
+               asp-route-searchTitle="@Model.SearchTitle" asp-route-searchDescription="@Model.SearchDescription"
+               asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")" asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+               asp-route-filterPriority="@Model.FilterPriority" asp-route-filterStatus="@Model.FilterStatus">@Localizer["PreviousPage"]</a>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">@string.Format(Localizer["PageInfoFormat"].Value, Model.PageNumber, (Model.TotalPages == 0 ? 1 : Model.TotalPages))</span>
+        </li>
+        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" 
+               asp-route-page="@(Model.PageNumber + 1)"
+               asp-route-sortOrder="@Model.CurrentSort"
+               asp-route-searchTitle="@Model.SearchTitle" asp-route-searchDescription="@Model.SearchDescription"
+               asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")" asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+               asp-route-filterPriority="@Model.FilterPriority" asp-route-filterStatus="@Model.FilterStatus">@Localizer["NextPage"]</a>
+        </li>
+    </ul>
+</nav>

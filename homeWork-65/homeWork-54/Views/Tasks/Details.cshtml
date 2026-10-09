@@ -1,0 +1,80 @@
+﻿@model homeWork_54.Models.TodoTask
+
+@{
+    ViewData["Title"] = Localizer["DetailsTitle"];
+}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-secondary mb-4 px-3">
+    <div class="navbar-nav">
+        <a class="nav-link text-white" asp-action="Index">@Localizer["AllTasks"]</a>
+        <a class="nav-link text-white" asp-action="Create">@Localizer["CreateTask"]</a>
+    </div>
+</nav>
+
+<div class="border p-4 shadow-sm bg-white">
+    <h4>@Model.Title</h4>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-4 border-end">
+            <p>
+                <strong>@Localizer["StatusLabel"]:</strong> 
+                @(Model.Status == homeWork_54.Models.TodoStatus.New ? Localizer["StatusNew"] :
+                  Model.Status == homeWork_54.Models.TodoStatus.Opened ? Localizer["StatusOpened"] : Localizer["StatusClosed"])
+            </p>
+            <p>
+                <strong>@Localizer["PriorityLabel"]:</strong> 
+                @if (Model.Priority == homeWork_54.Models.TaskPriority.High)
+                {
+                    <span class="text-danger fw-bold">@Localizer["PriorityHigh"]</span>
+                }
+                else if (Model.Priority == homeWork_54.Models.TaskPriority.Medium)
+                {
+                    <span class="text-primary fw-bold">@Localizer["PriorityMedium"]</span>
+                }
+                else
+                {
+                    <span class="text-success fw-bold">@Localizer["PriorityLow"]</span>
+                }
+            </p>
+            <p><strong>@Localizer["NumberLabel"]:</strong> @Model.Id</p>
+            <p><strong>@Localizer["AssigneeLabel"]:</strong> @Model.Assignee</p>
+            <p><strong>@Localizer["CreatedDateLabel"]:</strong> @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</p>
+
+            @if (Model.Status == homeWork_54.Models.TodoStatus.Closed && Model.ClosedDate.HasValue)
+            {
+                <p><strong>@Localizer["ClosedDateLabel"]:</strong> @Model.ClosedDate.Value.ToString("dd.MM.yyyy HH:mm")</p>
+            }
+        </div>
+
+        <div class="col-md-8">
+            <h5>@Localizer["TaskDescriptionHeading"]</h5>
+            <p>@(string.IsNullOrWhiteSpace(Model.Description) ? Localizer["NoDescription"] : Model.Description)</p>
+        </div>
+    </div>
+
+    <hr />
+    <div class="d-flex gap-2">
+        @if (Model.Status == homeWork_54.Models.TodoStatus.New)
+        {
+            <form asp-action="Open" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-outline-secondary">@Localizer["OpenAction"]</button>
+            </form>
+        }
+        else if (Model.Status == homeWork_54.Models.TodoStatus.Opened)
+        {
+            <form asp-action="Close" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-outline-secondary">@Localizer["CloseAction"]</button>
+            </form>
+        }
+
+        @if (Model.Status != homeWork_54.Models.TodoStatus.Opened)
+        {
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-outline-secondary">@Localizer["DeleteAction"]</button>
+            </form>
+        }
+
+        <a asp-action="Index" class="btn btn-secondary">@Localizer["BackToList"]</a>
+    </div>
+</div>
